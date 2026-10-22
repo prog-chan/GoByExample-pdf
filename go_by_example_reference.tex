@@ -1,0 +1,2456 @@
+\documentclass[10pt,oneside]{article}
+\usepackage[paperwidth=7in,paperheight=9.5in,top=.77in,bottom=.7in,left=.73in,right=.73in,headheight=15pt]{geometry}
+\usepackage{fontspec,microtype,xcolor,hyperref,bookmark,listings,fancyhdr,titlesec,parskip,needspace}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont[Scale=.88]{DejaVu Sans Mono}
+\definecolor{ink}{HTML}{1D2D40}
+\definecolor{accent}{HTML}{147B91}
+\definecolor{muted}{HTML}{637587}
+\definecolor{codebg}{HTML}{F2F5F8}
+\definecolor{codekw}{HTML}{225BA0}
+\definecolor{codestr}{HTML}{087A55}
+\definecolor{codecom}{HTML}{718096}
+\definecolor{outputbg}{HTML}{F8F9FA}
+\definecolor{rule}{HTML}{D8E1E9}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=accent,pdftitle={Go by Example - Edited Go Reference},pdfauthor={Original: Mark McGranaghan and contributors; edited reference adaptation},bookmarksnumbered=true,pdfstartview=FitH}
+\titleformat{\section}{\sffamily\Large\bfseries\color{ink}}{\thesection}{.75em}{}
+\titlespacing*{\section}{0pt}{2pt}{13pt}
+\titleformat{\subsection}{\sffamily\small\bfseries\color{accent}}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{10pt}{5pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1pt}
+\setcounter{tocdepth}{1}
+\renewcommand{\contentsname}{Contents}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\scriptsize\bfseries\color{accent} GO BY EXAMPLE}
+\fancyhead[R]{\sffamily\scriptsize\color{muted} EDITED GO REFERENCE}
+\fancyfoot[L]{}
+\fancyfoot[R]{\sffamily\small\color{ink}\thepage}
+\renewcommand{\headrulewidth}{.35pt}
+\renewcommand{\footrulewidth}{0pt}
+\lstdefinelanguage{Go}{
+  morekeywords={package,import,func,return,var,const,type,struct,interface,map,chan,go,defer,if,else,for,range,switch,case,default,break,continue,select,fallthrough},
+  sensitive=true,morecomment=[l]{//},morecomment=[s]{/*}{*/},morestring=[b]",morestring=[b]`,
+}
+\lstdefinestyle{gocode}{language=Go,basicstyle=\color{ink}\ttfamily\small,keywordstyle=\color{codekw}\bfseries,
+  stringstyle=\color{codestr},commentstyle=\color{codecom}\itshape,
+  backgroundcolor=\color{codebg},frame=single,framerule=0pt,
+  xleftmargin=0pt,xrightmargin=0pt,framexleftmargin=9pt,framexrightmargin=9pt,
+  framextopmargin=7pt,framexbottommargin=7pt,
+  aboveskip=5pt,belowskip=5pt,columns=fullflexible,keepspaces=true,showstringspaces=false,
+  breaklines=true,breakatwhitespace=true,tabsize=4,upquote=true,
+  literate={->}{{->}}2}
+\lstdefinestyle{terminal}{basicstyle=\color{ink}\ttfamily\small,backgroundcolor=\color{outputbg},
+  xleftmargin=0pt,xrightmargin=0pt,frame=single,framerule=0pt,
+  framexleftmargin=9pt,framexrightmargin=9pt,framextopmargin=5pt,framexbottommargin=5pt,
+  breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,aboveskip=3pt,belowskip=6pt}
+\newcommand{\sectionline}{\par\vspace{4pt}{\color{rule}\hrule height .5pt}\vspace{7pt}\color{ink}\noindent}
+\begin{document}
+\color{ink}
+\begin{titlepage}
+\thispagestyle{empty}
+\vspace*{1.0in}
+{\sffamily\Huge\bfseries\color{ink}Go by Example\par}
+\vspace{16pt}
+{\sffamily\LARGE\color{accent}The Edited Reference\par}
+\vspace{25pt}
+\sectionline
+\vspace{12pt}
+{\Large\color{ink}Complete and self-contained Go examples.\par}
+\vspace{16pt}
+{\large\raggedright The original Go by Example project is by Mark McGranaghan and contributors, including Eli Bendersky. The source material is available at gobyexample.com and github.com/mmcgrana/gobyexample.\par}
+\vfill
+{\sffamily\small\color{muted}Adapted, corrected, and reformatted from the Go by Example project.\\Attribution and license appear in the opening pages.\par}
+\end{titlepage}
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\section*{How to use this reference}
+Each chapter begins on a new page. The single \textbf{Example} listing in each chapter is complete Go source rather than a disconnected fragment. Save it as \texttt{main.go} and run \texttt{go run main.go}, except where a chapter explicitly describes a different file layout or a persistent server.
+
+\textbf{Every chapter has an output example} directly below its code. For predictable programs, the listing shows the expected output. When results depend on goroutine scheduling, elapsed time, command-line arguments, the operating system, files, a remote service, or an external request, the listing shows \emph{one representative run}; a brief note explains what may vary. Terminal output can combine standard output and standard error when stated. A modern Go compiler is recommended; the iterator chapter requires Go 1.23 or later.
+
+\textbf{Quick reading guide.} Declarations at package scope appear before \texttt{main}. Imports appear only when needed. The point of a chapter is the rule immediately above its example; the program supplies the runnable context needed to understand that rule.
+\clearpage
+\section*{Attribution and license}
+The original Go by Example project is by Mark McGranaghan and contributors, including Eli Bendersky. The source material is available at \href{https://gobyexample.com}{gobyexample.com} and \href{https://github.com/mmcgrana/gobyexample}{github.com/mmcgrana/gobyexample}.
+
+The original work is licensed under \href{https://creativecommons.org/licenses/by/3.0/}{Creative Commons Attribution 3.0 Unported (CC BY 3.0)}. This edition is an adaptation: the presentation, explanatory text, and sample programs have been revised substantially to make the material useful as a compact reference. The original authors do not endorse this adaptation.
+\clearpage
+\pagenumbering{arabic}
+\clearpage
+\section{Hello World}
+\sectionline
+A Go program starts in package main and executes func main. The fmt package prints formatted values.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("hello world")
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello world
+\end{lstlisting}
+\clearpage
+\section{Values}
+\sectionline
+Go has strings, integers, floating-point values, and booleans. Operators act on compatible types.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("go" + "lang")
+	fmt.Println(1 + 1)
+	fmt.Println(7.0 / 3.0)
+	fmt.Println(true && false)
+	fmt.Println(true || false)
+	fmt.Println(!true)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+golang
+2
+2.3333333333333335
+false
+true
+false
+\end{lstlisting}
+\clearpage
+\section{Variables}
+\sectionline
+Use var for an explicit declaration and := for a short declaration inside a function. Uninitialized variables receive their zero value.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	var name string = "Go"
+	count := 3
+	var ready bool
+	fmt.Println(name, count, ready)
+	count = 4
+	fmt.Println(count)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+Go 3 false
+4
+\end{lstlisting}
+\clearpage
+\section{Constants}
+\sectionline
+Constants are immutable. Untyped numeric constants can retain precision until a context gives them a type.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+const message = "constant"
+const big = 3e10
+
+func main() {
+	fmt.Println(message)
+	fmt.Println(int64(big))
+	fmt.Printf("%.2f\n", math.Sin(math.Pi/2))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+constant
+30000000000
+1.00
+\end{lstlisting}
+\clearpage
+\section{For}
+\sectionline
+for covers counted iteration, condition-only loops, and iteration over collections. break exits a loop; continue skips to the next iteration.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	for i := 0; i < 3; i++ {
+		fmt.Println(i)
+	}
+	n := 3
+	for n > 0 {
+		n--
+	}
+	fmt.Println("done")
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+0
+1
+2
+done
+\end{lstlisting}
+\clearpage
+\section{If/Else}
+\sectionline
+if conditions need no parentheses, but braces are mandatory. A short statement before the condition scopes a variable to the entire if/else chain.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	if n := 9; n < 0 {
+		fmt.Println("negative")
+	} else if n < 10 {
+		fmt.Println("one digit")
+	} else {
+		fmt.Println("many digits")
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+one digit
+\end{lstlisting}
+\clearpage
+\section{Switch}
+\sectionline
+switch chooses a branch without implicit fallthrough. Multiple values can share a case; a switch with no expression acts like a chain of conditions.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	day := "Saturday"
+	switch day {
+	case "Saturday", "Sunday":
+		fmt.Println("weekend")
+	default:
+		fmt.Println("weekday")
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+weekend
+\end{lstlisting}
+\clearpage
+\section{Arrays}
+\sectionline
+Arrays have fixed length, and that length is part of their type. Indexes start at zero; assigning an array copies its elements.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	a := [3]int{1, 2, 3}
+	b := a
+	b[0] = 99
+	fmt.Println(a)
+	fmt.Println(b)
+	fmt.Println(len(a))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+[1 2 3]
+[99 2 3]
+3
+\end{lstlisting}
+\clearpage
+\section{Slices}
+\sectionline
+Slices are dynamically sized views over arrays. append may allocate new storage, so use its return value.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	a := []int{1, 2, 3}
+	b := a[1:]
+	b[0] = 20
+	a = append(a, 4)
+	fmt.Println(a)
+	fmt.Println(len(a), cap(a))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+[1 20 3 4]
+4 6
+\end{lstlisting}
+\clearpage
+\section{Maps}
+\sectionline
+Maps associate comparable keys with values. A lookup can return both the value and a boolean indicating whether the key exists.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	ages := map[string]int{"Ada": 36}
+	ages["Bob"] = 41
+	age, ok := ages["Ada"]
+	fmt.Println(age, ok)
+	delete(ages, "Bob")
+	_, ok = ages["Bob"]
+	fmt.Println(ok)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+36 true
+false
+\end{lstlisting}
+\clearpage
+\section{Functions}
+\sectionline
+Functions name their parameters and result types. A function can return a value or return nothing.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func add(a, b int) int {
+	return a + b
+}
+
+func main() {
+	fmt.Println(add(2, 3))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+5
+\end{lstlisting}
+\clearpage
+\section{Multiple Return Values}
+\sectionline
+A function may return multiple results. A common pattern returns a value and an error.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func divide(a, b int) (int, bool) {
+	if b == 0 {
+		return 0, false
+	}
+	return a / b, true
+}
+
+func main() {
+	n, ok := divide(12, 3)
+	fmt.Println(n, ok)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+4 true
+\end{lstlisting}
+\clearpage
+\section{Variadic Functions}
+\sectionline
+A variadic parameter accepts zero or more arguments. Inside the function, it behaves as a slice.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func sum(nums ...int) int {
+	total := 0
+	for _, n := range nums {
+		total += n
+	}
+	return total
+}
+
+func main() {
+	values := []int{1, 2, 3}
+	fmt.Println(sum(values...))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+6
+\end{lstlisting}
+\clearpage
+\section{Closures}
+\sectionline
+A closure retains access to variables in its surrounding function, even after that outer function returns.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func counter() func() int {
+	n := 0
+	return func() int {
+		n++
+		return n
+	}
+}
+
+func main() {
+	next := counter()
+	fmt.Println(next(), next(), next())
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+1 2 3
+\end{lstlisting}
+\clearpage
+\section{Recursion}
+\sectionline
+Recursive functions call themselves and must have a base case to terminate.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func factorial(n int) int {
+	if n <= 1 {
+		return 1
+	}
+	return n * factorial(n-1)
+}
+
+func main() {
+	fmt.Println(factorial(5))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+120
+\end{lstlisting}
+\clearpage
+\section{Range over Built-in Types}
+\sectionline
+range iterates over slices, arrays, strings, maps, and other iterable values. An underscore discards an unused index or value.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	nums := []int{2, 3, 4}
+	total := 0
+	for _, n := range nums {
+		total += n
+	}
+	fmt.Println(total)
+	for i, n := range nums {
+		fmt.Printf("%d:%d ", i, n)
+	}
+	fmt.Println()
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+9
+0:2 1:3 2:4 
+\end{lstlisting}
+\clearpage
+\section{Pointers}
+\sectionline
+A pointer holds the address of a variable. Passing a pointer allows a function to modify the original value.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func zero(p *int) {
+	*p = 0
+}
+
+func main() {
+	n := 7
+	zero(&n)
+	fmt.Println(n)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+0
+\end{lstlisting}
+\clearpage
+\section{Strings and Runes}
+\sectionline
+A string stores bytes, usually UTF-8 encoded text. range over a string decodes Unicode code points (runes).\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"unicode/utf8"
+)
+
+func main() {
+	text := "Go! 世界"
+	fmt.Println(len(text))
+	fmt.Println(utf8.RuneCountInString(text))
+	for _, r := range "Go" {
+		fmt.Printf("%c ", r)
+	}
+	fmt.Println()
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+10
+6
+G o 
+\end{lstlisting}
+\clearpage
+\section{Structs}
+\sectionline
+Structs group fields into a named type. Construct them using field names to avoid order-dependent initialization.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+type Person struct {
+	Name string
+	Age  int
+}
+
+func main() {
+	p := Person{Name: "Ada", Age: 36}
+	p.Age++
+	fmt.Println(p.Name, p.Age)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+Ada 37
+\end{lstlisting}
+\clearpage
+\section{Methods}
+\sectionline
+A method is a function with a receiver. Pointer receivers can modify a value and avoid copying large structs.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+type Rectangle struct {
+	Width, Height int
+}
+
+func (r Rectangle) Area() int {
+	return r.Width * r.Height
+}
+
+func (r *Rectangle) Scale(n int) {
+	r.Width *= n
+	r.Height *= n
+}
+
+func main() {
+	r := Rectangle{3, 4}
+	r.Scale(2)
+	fmt.Println(r.Area())
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+48
+\end{lstlisting}
+\clearpage
+\section{Interfaces}
+\sectionline
+An interface describes behavior via a method set. A concrete type satisfies an interface implicitly by providing those methods.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+type Speaker interface {
+	Speak() string
+}
+
+type Dog struct{}
+
+func (Dog) Speak() string { return "woof" }
+
+func announce(s Speaker) {
+	fmt.Println(s.Speak())
+}
+
+func main() {
+	announce(Dog{})
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+woof
+\end{lstlisting}
+\clearpage
+\section{Enums}
+\sectionline
+Go has no built-in enum declaration. Named types plus iota provide readable sets of related constants.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+type State int
+
+const (
+	Idle State = iota
+	Running
+	Stopped
+)
+
+func main() {
+	s := Running
+	fmt.Println(s == Running, s)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+true 1
+\end{lstlisting}
+\clearpage
+\section{Struct Embedding}
+\sectionline
+Embedding promotes fields and methods of an embedded type while retaining normal composition.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+type Base struct{ ID int }
+
+func (b Base) Label() string { return fmt.Sprint(b.ID) }
+
+type Job struct {
+	Base
+	Name string
+}
+
+func main() {
+	j := Job{Base: Base{ID: 7}, Name: "build"}
+	fmt.Println(j.ID, j.Label(), j.Name)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+7 7 build
+\end{lstlisting}
+\clearpage
+\section{Generics}
+\sectionline
+Type parameters make functions work with multiple types while preserving static type checking. Constraints restrict permitted operations.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func Index[T comparable](items []T, want T) int {
+	for i, v := range items {
+		if v == want {
+			return i
+		}
+	}
+	return -1
+}
+
+func main() {
+	fmt.Println(Index([]string{"a", "b"}, "b"))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+1
+\end{lstlisting}
+\clearpage
+\section{Range over Iterators}
+\sectionline
+Iterator functions can yield a sequence to range. The yield callback returns false when the consumer stops early (Go 1.23+).\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func Count(n int) func(func(int) bool) {
+	return func(yield func(int) bool) {
+		for i := 0; i < n; i++ {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
+func main() {
+	for n := range Count(3) {
+		fmt.Println(n)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+0
+1
+2
+\end{lstlisting}
+\clearpage
+\section{Errors}
+\sectionline
+Go errors are ordinary values. Check err explicitly and add useful context with fmt.Errorf and \%w.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"errors"
+	"fmt"
+)
+
+func load(name string) error {
+	if name == "" {
+		return errors.New("empty name")
+	}
+	return nil
+}
+
+func main() {
+	if err := load(""); err != nil {
+		fmt.Println("load failed:", err)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+load failed: empty name
+\end{lstlisting}
+\clearpage
+\section{Custom Errors}
+\sectionline
+Custom error types can carry structured context. errors.As finds a matching error type through wrapping.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"errors"
+	"fmt"
+)
+
+type StatusError struct{ Code int }
+
+func (e *StatusError) Error() string {
+	return fmt.Sprintf("status %d", e.Code)
+}
+
+func main() {
+	err := fmt.Errorf("request: %w", &StatusError{404})
+	var target *StatusError
+	if errors.As(err, &target) {
+		fmt.Println(target.Code)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+404
+\end{lstlisting}
+\clearpage
+\section{Goroutines}
+\sectionline
+A goroutine runs a function concurrently. Synchronize completion explicitly; sleeping is not a reliable synchronization technique.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		fmt.Println("from goroutine")
+	}()
+	wg.Wait()
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+from goroutine
+\end{lstlisting}
+\clearpage
+\section{Channels}
+\sectionline
+Channels transfer typed values between goroutines. An unbuffered channel pairs a sender with a receiver.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	ch := make(chan string)
+	go func() { ch <- "hello" }()
+	fmt.Println(<-ch)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello
+\end{lstlisting}
+\clearpage
+\section{Channel Buffering}
+\sectionline
+Buffered channels hold a limited number of queued values. A send blocks only when the buffer is full.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	ch := make(chan int, 2)
+	ch <- 10
+	ch <- 20
+	fmt.Println(<-ch, <-ch)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+10 20
+\end{lstlisting}
+\clearpage
+\section{Channel Synchronization}
+\sectionline
+A channel can signal that work finished. Closing a channel is a common broadcast signal when no more values will arrive.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	done := make(chan struct{})
+	go func() {
+		fmt.Println("working")
+		close(done)
+	}()
+	<-done
+	fmt.Println("finished")
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+working
+finished
+\end{lstlisting}
+\clearpage
+\section{Channel Directions}
+\sectionline
+Channel direction annotations express intent and let the compiler reject mistaken sends or receives.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func send(ch chan<- string) {
+	ch <- "ping"
+}
+
+func receive(ch <-chan string) {
+	fmt.Println(<-ch)
+}
+
+func main() {
+	ch := make(chan string)
+	go send(ch)
+	receive(ch)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+ping
+\end{lstlisting}
+\clearpage
+\section{Select}
+\sectionline
+select waits for one ready channel operation. A default branch makes the select non-blocking.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	ch := make(chan int, 1)
+	ch <- 42
+	select {
+	case n := <-ch:
+		fmt.Println(n)
+	default:
+		fmt.Println("not ready")
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+42
+\end{lstlisting}
+\clearpage
+\section{Timeouts}
+\sectionline
+Use context deadlines to bound operations instead of waiting forever. Always call cancel to release associated resources.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+)
+
+func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+	defer cancel()
+	<-ctx.Done()
+	fmt.Println(ctx.Err())
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+context deadline exceeded
+\end{lstlisting}
+\clearpage
+\section{Non-Blocking Channel Operations}
+\sectionline
+A select with default probes channels without waiting. That is useful for optional work, but not as a substitute for proper synchronization.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	ch := make(chan string)
+	select {
+	case msg := <-ch:
+		fmt.Println(msg)
+	default:
+		fmt.Println("no message")
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+no message
+\end{lstlisting}
+\clearpage
+\section{Closing Channels}
+\sectionline
+Only the sender should normally close a channel. A receiver can test whether a receive succeeded with the two-result form.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	jobs := make(chan int, 2)
+	jobs <- 1
+	jobs <- 2
+	close(jobs)
+	for {
+		job, ok := <-jobs
+		if !ok {
+			break
+		}
+		fmt.Println(job)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+1
+2
+\end{lstlisting}
+\clearpage
+\section{Range over Channels}
+\sectionline
+range ch receives until the channel is closed. It is the idiomatic way to consume a stream with an explicit end.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	ch := make(chan string, 2)
+	ch <- "one"
+	ch <- "two"
+	close(ch)
+	for msg := range ch {
+		fmt.Println(msg)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+one
+two
+\end{lstlisting}
+\clearpage
+\section{Timers}
+\sectionline
+time.NewTimer fires once. Stop or drain unused timers when appropriate to avoid unnecessary work.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	timer := time.NewTimer(10 * time.Millisecond)
+	defer timer.Stop()
+	<-timer.C
+	fmt.Println("timer fired")
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+timer fired
+\end{lstlisting}
+\clearpage
+\section{Tickers}
+\sectionline
+A ticker produces periodic events. Always stop a ticker when you are finished with it.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	ticker := time.NewTicker(10 * time.Millisecond)
+	defer ticker.Stop()
+	for i := 0; i < 2; i++ {
+		<-ticker.C
+		fmt.Println("tick")
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+tick
+tick
+\end{lstlisting}
+\clearpage
+\section{Worker Pools}
+\sectionline
+A worker pool caps concurrency by running a fixed number of workers that consume tasks from a shared channel.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func worker(jobs <-chan int, results chan<- int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for n := range jobs {
+		results <- n * n
+	}
+}
+
+func main() {
+	jobs := make(chan int, 3)
+	results := make(chan int, 3)
+	var wg sync.WaitGroup
+	wg.Add(2)
+	for i := 0; i < 2; i++ {
+		go worker(jobs, results, &wg)
+	}
+	for _, n := range []int{2, 3, 4} {
+		jobs <- n
+	}
+	close(jobs)
+	wg.Wait()
+	close(results)
+	for n := range results {
+		fmt.Println(n)
+	}
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+4
+9
+16
+\end{lstlisting}
+\emph{Example run.} All three squares are printed, but worker scheduling can change their order.
+\clearpage
+\section{WaitGroups}
+\sectionline
+sync.WaitGroup coordinates completion of a known number of goroutines. Call Add before starting work, and Done exactly once per task.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func(n int) {
+			defer wg.Done()
+			fmt.Print(n, " ")
+		}(i)
+	}
+	wg.Wait()
+	fmt.Println()
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+2 0 1
+\end{lstlisting}
+\emph{Example run.} The goroutines may print the numbers in any order, depending on scheduling.
+\clearpage
+\section{Rate Limiting}
+\sectionline
+A time.Ticker can pace requests. For bursting workloads, a token-bucket limiter uses a buffered token channel.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	limiter := time.NewTicker(10 * time.Millisecond)
+	defer limiter.Stop()
+	for i := 1; i <= 3; i++ {
+		<-limiter.C
+		fmt.Println("request", i)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+request 1
+request 2
+request 3
+\end{lstlisting}
+\clearpage
+\section{Atomic Counters}
+\sectionline
+Atomic variables provide lock-free operations on individual values. Use sync/atomic types instead of a shared unsynchronized integer.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"sync"
+	"sync/atomic"
+)
+
+func main() {
+	var count atomic.Int64
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			count.Add(1)
+		}()
+	}
+	wg.Wait()
+	fmt.Println(count.Load())
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+100
+\end{lstlisting}
+\clearpage
+\section{Mutexes}
+\sectionline
+A mutex protects an invariant spanning one or more variables. Lock around both reading and writing shared state.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+type Counter struct {
+	mu sync.Mutex
+	n  int
+}
+
+func (c *Counter) Inc() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.n++
+}
+
+func main() {
+	c := &Counter{}
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() { defer wg.Done(); c.Inc() }()
+	}
+	wg.Wait()
+	fmt.Println(c.n)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+10
+\end{lstlisting}
+\clearpage
+\section{Stateful Goroutines}
+\sectionline
+Another concurrency model assigns ownership of mutable state to one goroutine; requests arrive via channels.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+type request struct {
+	delta int
+	reply chan int
+}
+
+func main() {
+	requests := make(chan request)
+	go func() {
+		total := 0
+		for req := range requests {
+			total += req.delta
+			req.reply <- total
+		}
+	}()
+	reply := make(chan int)
+	requests <- request{delta: 5, reply: reply}
+	fmt.Println(<-reply)
+	close(requests)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+5
+\end{lstlisting}
+\clearpage
+\section{Sorting}
+\sectionline
+The slices package provides type-safe sorting and membership functions. Sorting changes the slice in place.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"slices"
+)
+
+func main() {
+	nums := []int{3, 1, 2}
+	slices.Sort(nums)
+	fmt.Println(nums)
+	fmt.Println(slices.IsSorted(nums))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+[1 2 3]
+true
+\end{lstlisting}
+\clearpage
+\section{Sorting by Functions}
+\sectionline
+Use slices.SortFunc and a comparison function to order records by a specific field. cmp.Compare handles most ordered values.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"cmp"
+	"fmt"
+	"slices"
+)
+
+type Person struct {
+	Name string
+	Age  int
+}
+
+func main() {
+	people := []Person{{"Bob", 40}, {"Ada", 36}}
+	slices.SortFunc(people, func(a, b Person) int {
+		return cmp.Compare(a.Age, b.Age)
+	})
+	fmt.Println(people)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+[{Ada 36} {Bob 40}]
+\end{lstlisting}
+\clearpage
+\section{Panic}
+\sectionline
+panic is for unrecoverable programming failures, not routine errors. Deferred functions still run as the stack unwinds.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	defer fmt.Println("cleanup")
+	fmt.Println("starting")
+	panic("unexpected failure")
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+starting
+cleanup
+panic: unexpected failure
+... stack trace ...
+\end{lstlisting}
+\emph{Abbreviated combined stdout/stderr.} The panic prints a runtime stack trace and exits with a nonzero status; the stack details and source line numbers vary.
+\clearpage
+\section{Defer}
+\sectionline
+defer schedules a call for when the surrounding function returns. Deferred calls run in last-in, first-out order.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	defer fmt.Println("first deferred")
+	defer fmt.Println("second deferred")
+	fmt.Println("body")
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+body
+second deferred
+first deferred
+\end{lstlisting}
+\clearpage
+\section{Recover}
+\sectionline
+recover can intercept a panic only when called from a deferred function in the same goroutine. It should be used at carefully chosen boundaries.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func safeCall() {
+	defer func() {
+		if v := recover(); v != nil {
+			fmt.Println("recovered:", v)
+		}
+	}()
+	panic("boom")
+}
+
+func main() {
+	safeCall()
+	fmt.Println("still running")
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+recovered: boom
+still running
+\end{lstlisting}
+\clearpage
+\section{String Functions}
+\sectionline
+strings provides helpers for matching, trimming, splitting, and replacing text. Most operations return a new string.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	fmt.Println(strings.Contains("golang", "lang"))
+	fmt.Println(strings.ToUpper("go"))
+	fmt.Println(strings.Join([]string{"a", "b"}, ","))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+true
+GO
+a,b
+\end{lstlisting}
+\clearpage
+\section{String Formatting}
+\sectionline
+fmt.Printf formats values with verbs such as \%d (integer), \%s (string), \%v (general), and \%.2f (two decimal places).\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import "fmt"
+
+func main() {
+	name, count, price := "Ada", 3, 2.5
+	fmt.Printf("%s: %d items at $%.2f\n", name, count, price)
+	fmt.Printf("%T\n", count)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+Ada: 3 items at $2.50
+int
+\end{lstlisting}
+\clearpage
+\section{Text Templates}
+\sectionline
+text/template separates reusable text layout from data and handles escaping according to its template language (unlike html/template).\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"os"
+	"text/template"
+)
+
+func main() {
+	t := template.Must(template.New("greet").Parse("Hello, {{.Name}}!\n"))
+	data := struct{ Name string }{Name: "Ada"}
+	if err := t.Execute(os.Stdout, data); err != nil {
+		panic(err)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+Hello, Ada!
+\end{lstlisting}
+\clearpage
+\section{Regular Expressions}
+\sectionline
+The regexp package uses RE2 syntax and provides matching, capture, and replacement operations without backtracking explosions.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"regexp"
+)
+
+func main() {
+	re := regexp.MustCompile(`[a-z]+`)
+	fmt.Println(re.FindString("123abc456"))
+	fmt.Println(re.ReplaceAllString("one TWO three", "x"))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+abc
+x TWO x
+\end{lstlisting}
+\clearpage
+\section{JSON}
+\sectionline
+encoding/json marshals exported struct fields. Decode into a typed struct when the schema is known and handle errors explicitly.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Person struct {
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
+
+func main() {
+	b, err := json.Marshal(Person{Name: "Ada", Age: 36})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(b))
+	var p Person
+	if err := json.Unmarshal(b, &p); err != nil {
+		panic(err)
+	}
+	fmt.Println(p.Name)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+{"name":"Ada","age":36}
+Ada
+\end{lstlisting}
+\clearpage
+\section{XML}
+\sectionline
+encoding/xml maps XML elements and attributes to Go structs. Use field tags when XML element names differ from Go field names.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"encoding/xml"
+	"fmt"
+)
+
+type Item struct {
+	XMLName xml.Name `xml:"item"`
+	ID      int      `xml:"id,attr"`
+	Title   string   `xml:"title"`
+}
+
+func main() {
+	b, err := xml.Marshal(Item{ID: 7, Title: "Go"})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(b))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+<item id="7"><title>Go</title></item>
+\end{lstlisting}
+\clearpage
+\section{Time}
+\sectionline
+time.Time represents an instant; time.Duration represents elapsed time. Prefer Add and Sub for arithmetic.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	start := time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC)
+	end := start.Add(90 * time.Minute)
+	fmt.Println(end.Format(time.RFC3339))
+	fmt.Println(end.Sub(start))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+2026-01-02T04:34:05Z
+1h30m0s
+\end{lstlisting}
+\clearpage
+\section{Epoch}
+\sectionline
+Unix timestamps count elapsed seconds or smaller units from 1970-01-01 UTC. Do not confuse seconds, milliseconds, and nanoseconds.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	t := time.Unix(0, 0).UTC()
+	fmt.Println(t.Format(time.RFC3339))
+	fmt.Println(t.Unix())
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+1970-01-01T00:00:00Z
+0
+\end{lstlisting}
+\clearpage
+\section{Time Formatting / Parsing}
+\sectionline
+Go uses a reference timestamp rather than printf-style placeholders: 2006-01-02 15:04:05.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	t, err := time.Parse("2006-01-02", "2026-10-21")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(t.Format("Jan 2, 2006"))
+	fmt.Println(t.Format(time.RFC3339))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+Oct 21, 2026
+2026-10-21T00:00:00Z
+\end{lstlisting}
+\clearpage
+\section{Random Numbers}
+\sectionline
+math/rand/v2 generates pseudorandom values for simulations and sampling. Do not use it for secrets; use crypto/rand instead.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"math/rand/v2"
+)
+
+func main() {
+	n := rand.IntN(10) // 0 through 9
+	fmt.Println(n >= 0 && n < 10)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+true
+\end{lstlisting}
+\clearpage
+\section{Number Parsing}
+\sectionline
+strconv converts strings into numeric types and returns errors when input is invalid.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+	n, err := strconv.Atoi("42")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(n + 1)
+	fmt.Println(strconv.FormatBool(true))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+43
+true
+\end{lstlisting}
+\clearpage
+\section{URL Parsing}
+\sectionline
+net/url parses URL components, and url.Values encodes query parameters. Never concatenate untrusted query values by hand.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"net/url"
+)
+
+func main() {
+	u, err := url.Parse("https://example.com/search?q=go%20lang")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(u.Host)
+	fmt.Println(u.Query().Get("q"))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+example.com
+go lang
+\end{lstlisting}
+\clearpage
+\section{SHA256 Hashes}
+\sectionline
+SHA-256 maps bytes to a fixed-size digest. It is a hash, not encryption; do not use plain SHA-256 to store passwords.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"crypto/sha256"
+	"fmt"
+)
+
+func main() {
+	digest := sha256.Sum256([]byte("hello"))
+	fmt.Printf("%x\n", digest)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+\end{lstlisting}
+\clearpage
+\section{Base64 Encoding}
+\sectionline
+Base64 transforms bytes into printable text; it does not provide confidentiality. Choose the URL-safe encoding for URL components.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"encoding/base64"
+	"fmt"
+)
+
+func main() {
+	encoded := base64.StdEncoding.EncodeToString([]byte("hello"))
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(encoded)
+	fmt.Println(string(decoded))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+aGVsbG8=
+hello
+\end{lstlisting}
+\clearpage
+\section{Reading Files}
+\sectionline
+os.ReadFile is convenient for small files. For streaming or large files, prefer bufio.Scanner or buffered readers.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	path := "example.txt"
+	if err := os.WriteFile(path, []byte("hello\n"), 0600); err != nil {
+		panic(err)
+	}
+	defer os.Remove(path)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(string(data))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello
+\end{lstlisting}
+\clearpage
+\section{Writing Files}
+\sectionline
+os.WriteFile atomically replaces neither the file nor its directory entry: for crash-safe updates, write a temporary file and rename it.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	path := "out.txt"
+	err := os.WriteFile(path, []byte("saved\n"), 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer os.Remove(path)
+	fmt.Println("wrote", path)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+wrote out.txt
+\end{lstlisting}
+\clearpage
+\section{Line Filters}
+\sectionline
+A bufio.Scanner reads input line by line. Check scanner.Err after iteration; increase the buffer for very long lines.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"strings"
+)
+
+func main() {
+	scanner := bufio.NewScanner(strings.NewReader("one\ntwo\n"))
+	for scanner.Scan() {
+		fmt.Println(strings.ToUpper(scanner.Text()))
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+ONE
+TWO
+\end{lstlisting}
+\clearpage
+\section{File Paths}
+\sectionline
+filepath.Join builds OS-native paths; filepath.Base and filepath.Ext inspect components without manually splitting separators.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"path/filepath"
+)
+
+func main() {
+	path := filepath.Join("docs", "notes.txt")
+	fmt.Println(path)
+	fmt.Println(filepath.Base(path))
+	fmt.Println(filepath.Ext(path))
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+docs/notes.txt
+notes.txt
+.txt
+\end{lstlisting}
+\clearpage
+\section{Directories}
+\sectionline
+os.MkdirAll creates nested directories. os.ReadDir lists entries; filepath.WalkDir visits a whole tree with error handling.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+)
+
+func main() {
+	root, err := os.MkdirTemp("", "tree-*")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(root)
+	path := filepath.Join(root, "a", "b")
+	if err := os.MkdirAll(path, 0755); err != nil {
+		panic(err)
+	}
+	entries, err := os.ReadDir(filepath.Join(root, "a"))
+	if err != nil {
+		panic(err)
+	}
+	for _, e := range entries {
+		fmt.Println(e.Name())
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+b
+\end{lstlisting}
+\clearpage
+\section{Temporary Files and Directories}
+\sectionline
+os.CreateTemp and os.MkdirTemp choose unique names safely. Remove temporary files and directories when no longer needed.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	f, err := os.CreateTemp("", "demo-*.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer os.Remove(f.Name())
+	defer f.Close()
+	fmt.Println("temporary file created:", f.Name() != "")
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+temporary file created: true
+\end{lstlisting}
+\clearpage
+\section{Embed Directive}
+\sectionline
+The //go:embed directive includes a file at compile time. The named file must exist relative to the package directory.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	_ "embed"
+	"fmt"
+)
+
+//go:embed message.txt
+var message string
+
+func main() {
+	fmt.Print(message)
+}
+\end{lstlisting}
+Create a file named \texttt{message.txt} in the same directory containing \texttt{hello from a file} followed by a newline before building the program.
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello from a file
+\end{lstlisting}
+\clearpage
+\section{Testing and Benchmarking}
+\sectionline
+Tests live in files ending with \_test.go. A test function receives *testing.T; benchmarks receive *testing.B.\par
+\subsection*{Example: calc.go}
+\begin{lstlisting}[style=gocode]
+package calc
+
+func Add(a, b int) int { return a + b }
+\end{lstlisting}
+Put the function above in \texttt{calc.go} and the following test in \texttt{calc\_test.go}:
+\subsection*{Example: calc\_test.go}
+\begin{lstlisting}[style=gocode]
+package calc
+
+import "testing"
+
+func TestAdd(t *testing.T) {
+    if got := Add(2, 3); got != 5 {
+        t.Fatalf("Add(2, 3) = %d; want 5", got)
+    }
+}
+
+func BenchmarkAdd(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        Add(2, 3)
+    }
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+=== RUN   TestAdd
+--- PASS: TestAdd (0.00s)
+BenchmarkAdd-5  189387514  1.841 ns/op
+PASS
+ok  example/calc  0.453s
+\end{lstlisting}
+\emph{Example using \texttt{go test -v -bench=.} (tests and benchmarks).} Benchmark iterations, nanoseconds per operation, CPU-dependent suffixes, package path, and elapsed times vary. Tests report \texttt{PASS} when assertions succeed.
+\clearpage
+\section{Command-Line Arguments}
+\sectionline
+os.Args contains the executable path as element zero and then command-line arguments. Validate the count before indexing.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("usage: app NAME")
+		return
+	}
+	fmt.Println("hello", os.Args[1])
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello Ada
+\end{lstlisting}
+\emph{Example using \texttt{go run main.go Ada}.} The greeting changes with the first argument. With no argument, the program prints usage information instead.
+\clearpage
+\section{Command-Line Flags}
+\sectionline
+The flag package parses typed command-line options. Define flags before calling flag.Parse.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"flag"
+	"fmt"
+)
+
+func main() {
+	name := flag.String("name", "world", "name to greet")
+	flag.Parse()
+	fmt.Println("hello", *name)
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello Ada
+\end{lstlisting}
+\emph{Example using \texttt{go run main.go -name Ada}.} The flag controls the name; omitting it prints \texttt{hello world}.
+\clearpage
+\section{Command-Line Subcommands}
+\sectionline
+Subcommands can use separate flag.FlagSet values. Check the command first, then parse only its arguments.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+)
+
+func main() {
+	if len(os.Args) < 2 || os.Args[1] != "greet" {
+		fmt.Println("usage: app greet [-name NAME]")
+		return
+	}
+	greet := flag.NewFlagSet("greet", flag.ExitOnError)
+	name := greet.String("name", "world", "name")
+	greet.Parse(os.Args[2:])
+	fmt.Println("hello", *name)
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello Ada
+\end{lstlisting}
+\emph{Example using \texttt{go run main.go greet -name Ada}.} The output depends on the subcommand and flags; invalid or missing subcommands print usage information.
+\clearpage
+\section{Environment Variables}
+\sectionline
+Use os.LookupEnv when you need to distinguish an unset environment variable from an empty one.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	os.Setenv("APP_MODE", "test")
+	mode, ok := os.LookupEnv("APP_MODE")
+	fmt.Println(mode, ok)
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+test true
+\end{lstlisting}
+\clearpage
+\section{Logging}
+\sectionline
+log/slog provides structured logs with named fields and pluggable handlers. Avoid secrets in log output.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"log/slog"
+	"os"
+)
+
+func main() {
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	log.Info("request handled", "method", "GET", "status", 200)
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+time=2026-10-21T14:21:00Z level=INFO msg="request handled" method=GET status=200
+\end{lstlisting}
+\emph{Example run.} The timestamp changes for each invocation. Log fields and formatting depend on the configured handler.
+\clearpage
+\section{HTTP Client}
+\sectionline
+http.Client makes requests. Always close response bodies and check status codes before treating a response as successful.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"time"
+)
+
+func main() {
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get("https://example.com")
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println("status:", resp.StatusCode)
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+status: 200
+\end{lstlisting}
+\emph{Example response.} The status code depends on the remote server; DNS, TLS, timeouts, or connectivity can cause the request to fail instead.
+\clearpage
+\section{HTTP Server}
+\sectionline
+An HTTP handler writes a response through http.ResponseWriter. ServeMux routes method/path patterns to handlers (Go 1.22+).\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /hello", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "hello")
+	})
+	log.Fatal(http.ListenAndServe(":8080", mux))
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+hello
+\end{lstlisting}
+\emph{Example HTTP response body.} Run the server, then request \texttt{GET /hello} on port 8080 from another terminal or browser. The server keeps running; it does not print this body to its own terminal.
+\clearpage
+\section{TCP Server}
+\sectionline
+net.Listen accepts incoming TCP connections. Handle each client separately and close connections when finished.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"net"
+)
+
+func main() {
+	ln, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ln.Close()
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Print(err)
+			continue
+		}
+		go func(c net.Conn) {
+			defer c.Close()
+			text, err := bufio.NewReader(c).ReadString('\n')
+			if err == nil {
+				fmt.Fprint(c, text)
+			}
+		}(conn)
+	}
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+ping
+\end{lstlisting}
+\emph{Example client response.} After connecting to port 8080, a client sending \texttt{ping} followed by a newline receives that line back. The server runs until stopped; only the first line of each connection is echoed.
+\clearpage
+\section{Context}
+\sectionline
+context.Context carries cancellation and deadlines through a call chain. Pass it as the first argument rather than storing it on a struct.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+)
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	select {
+	case <-ctx.Done():
+		fmt.Println(ctx.Err())
+	case <-time.After(time.Second):
+		fmt.Println("finished")
+	}
+}
+\end{lstlisting}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+context canceled
+\end{lstlisting}
+\clearpage
+\section{Spawning Processes}
+\sectionline
+os/exec starts processes without invoking a shell by default. Avoid constructing shell command strings from user input.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os/exec"
+)
+
+func main() {
+	out, err := exec.Command("go", "version").Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(string(out))
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+go version go1.23.2 linux/amd64
+\end{lstlisting}
+\emph{Example run.} The Go version, operating system, and architecture match the toolchain installed on the host and therefore vary.
+\clearpage
+\section{Exec'ing Processes}
+\sectionline
+syscall.Exec replaces the current process on Unix. It does not return on success and is generally inappropriate for portable applications.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"os"
+	"os/exec"
+	"syscall"
+)
+
+func main() {
+	binary, err := exec.LookPath("ls")
+	if err != nil {
+		panic(err)
+	}
+	if err := syscall.Exec(binary, []string{"ls", "-l"}, os.Environ()); err != nil {
+		panic(err)
+	}
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+total 4
+-rw-r--r-- 1 user user 237 Oct 21  main.go
+\end{lstlisting}
+\emph{Example output on Unix.} The process becomes \texttt{ls -l}; directory contents, owners, sizes, permissions, and dates depend on the working directory and operating system.
+\clearpage
+\section{Signals}
+\sectionline
+signal.NotifyContext cancels a context when one of the specified operating-system signals arrives. stop releases signal resources.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"context"
+	"fmt"
+	"os/signal"
+	"syscall"
+)
+
+func main() {
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT, syscall.SIGTERM,
+	)
+	defer stop()
+
+	fmt.Println("waiting for signal")
+	<-ctx.Done()
+	fmt.Println("shutting down")
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+waiting for signal
+shutting down
+\end{lstlisting}
+\emph{Example after Ctrl+C or SIGTERM.} The second line appears only after a signal arrives. How long the program waits depends on when that happens.
+\clearpage
+\section{Exit}
+\sectionline
+os.Exit terminates immediately with a status code and does not execute deferred calls. Returning from main is preferable for routine success.\par
+\subsection*{Example}
+\begin{lstlisting}[style=gocode]
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	fmt.Fprintln(os.Stderr, "invalid arguments")
+	os.Exit(2)
+}
+\end{lstlisting}
+
+
+\Needspace{6\baselineskip}
+\subsection*{Output}
+\begin{lstlisting}[style=terminal]
+invalid arguments
+\end{lstlisting}
+\emph{Example stderr output.} The process exits with status code \texttt{2}, which a calling shell can inspect. Deferred calls do not run when \texttt{os.Exit} executes.
+\end{document}
