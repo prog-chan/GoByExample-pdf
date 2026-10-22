@@ -2,7 +2,7 @@
 
 **Complete and self-contained Go examples.**
 
-This repository contains an **independently edited, offline Go programming reference** based on the open-licensed [Go by Example](https://gobyexample.com/) project created by **Mark McGranaghan**, with contributions from others, **including Eli Bendersky**.. The book is written and maintained as a **LaTeX manuscript** and compiled into a searchable PDF. My primary motivation for creating this pdf version is having an offline reference.
+This repository contains an **independently edited, offline Go programming reference** based on the open-licensed [Go by Example](https://gobyexample.com/) project created by **Mark McGranaghan**, with contributions from others, **including Eli Bendersky**. The book is written and maintained as a **LaTeX manuscript** and compiled into a searchable PDF. My primary motivation for creating this pdf version is having an offline reference.
 
 ## Files
 
